@@ -1,49 +1,66 @@
-const icons = {
-  "Sunny": "☀️",
-  "Rainy": "🌧️",
-  "Cloudy": "☁️",
-  "Thunderstorm": "⛈️",
-  "Unknown": "❓",
-  "Partially Rainy": "🌦️",
-  "Patchy Rain": "🌧️"
-};
+// File: project/backend/static/script.js
 
-async function getWeather() {
-  const city = document.getElementById('city').value.trim();
+function getWeatherIcon(label) {
+  const icons = {
+    sunny: "☀️",
+    sun: "☀️",
+    clear: "☀️",
+    rain: "🌧️",
+    rainy: "🌧️",
+    drizzle: "🌦️",
+    cloudy: "☁️",
+    overcast: "☁️",
+    fog: "🌫️",
+    thunderstorm: "⛈️",
+    snow: "❄️"
+  };
+  label = label.toLowerCase();
+  for (let key in icons) {
+    if (label.includes(key)) return icons[key];
+  }
+  return "❓";
+}
+
+function fetchForecast() {
+  const city = document.getElementById("cityInput").value.trim();
   if (!city) {
-    alert('Please enter a city name');
+    alert("Please enter a city name.");
     return;
   }
 
-  try {
-    const res = await fetch(`/predict?city=${encodeURIComponent(city)}`);
-    if (!res.ok) throw new Error('Network response was not ok');
-    const data = await res.json();
+  fetch(`/predict?city=${encodeURIComponent(city)}`)
+    .then(resp => resp.json())
+    .then(data => {
+      console.log("RAW JSON:", data);  // <--- Check that avgtemp & precipitation appear here
+      const forecastDiv = document.getElementById("forecast");
+      forecastDiv.innerHTML = "";
 
-    if (data.error) {
-      alert('Error: ' + data.error);
-      return;
-    }
+      if (data.error) {
+        forecastDiv.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+        return;
+      }
 
-    const forecastDiv = document.getElementById("forecast");
-    forecastDiv.innerHTML = "";
+      data.predictions.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "day-card";
 
-    const icon = icons[data.predicted_condition] || "❓";
-
-    const card = `
-      <div class="card">
-        <div class="weather-icon">${icon}</div>
-        <div><strong>${data.predicted_condition}</strong></div>
-        <div>Precipitation: ${data.input_features.precipitation.toFixed(2)} mm</div>
-        <div>Max Temp: ${data.input_features.temp_max.toFixed(1)} °C</div>
-        <div>Min Temp: ${data.input_features.temp_min.toFixed(1)} °C</div>
-        <div>Wind Speed: ${data.input_features.wind.toFixed(1)} kph</div>
-      </div>
-    `;
-
-    forecastDiv.innerHTML = card;
-
-  } catch (error) {
-    alert("Error fetching weather data: " + error.message);
-  }
+        const icon = getWeatherIcon(item.predicted);
+        card.innerHTML = `
+          <div class="date">${item.date}</div>
+          <div class="icon">${icon}</div>
+          <div class="label">${item.predicted}</div>
+          <div class="details">
+            Avg Temp: ${item.avgtemp.toFixed(1)}°C<br>
+            Precipitation: ${item.precipitation.toFixed(1)} mm
+          </div>
+        `;
+        forecastDiv.appendChild(card);
+      });
+    })
+    .catch(err => {
+      alert("Failed to fetch forecast: " + err);
+    });
 }
+
+document.getElementById("getForecastBtn")
+        .addEventListener("click", fetchForecast);

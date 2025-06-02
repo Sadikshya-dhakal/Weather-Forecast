@@ -1,21 +1,25 @@
+<!-- File: project/backend/templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>🌦️ Real-Time Weather Forecast (LSTM)</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🌦️ Real-Time Weather Prediction (LSTM)</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>🌦️ Real-Time Weather Forecast</h1>
-        <div class="search-bar">
-            <input id="city" type="text" placeholder="Enter city name" />
-            <button onclick="getWeather()">Get Forecast</button>
-        </div>
-        <div id="forecast"></div>
+  <div class="container">
+    <h1>🌦️ Real-Time Weather Prediction (LSTM)</h1>
+    <div class="input-group">
+      <input
+        type="text"
+        id="cityInput"
+        placeholder="Enter city (e.g., Kathmandu)"
+      />
+      <button id="getForecastBtn">Get 7-Day Forecast</button>
     </div>
-
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <div id="forecast" class="forecast-grid"></div>
+  </div>
+  <script src="{{ url_for('static', filename='script.js') }}" defer></script>
 </body>
 </html>
